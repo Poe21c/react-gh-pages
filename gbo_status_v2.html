@@ -1,0 +1,460 @@
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stats Table</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <style>
+	:root {
+	  --HP_Basic: 1000;
+	  --HP_Add: 1000;
+	  
+	}
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1e1e2e;
+      color: #d0d0e0;
+      margin: 0;
+      padding: 20px;
+    }
+ 
+    .table-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #2b2b3b;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+ 
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #444;
+      padding-bottom: 10px;
+    }
+ 
+    .table-header h1 {
+      font-size: 1.2em;
+      margin: 0;
+    }
+ 
+    .table-header .level {
+      font-size: 1em;
+      background: #444;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+ 
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+ 
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #444;
+    }
+	
+	th {
+        width: 120px;
+    }
+	
+	
+	.color {
+		width: 5px;
+		height: 15px;
+		display: inline-block;
+		margin-right: 8px;
+	} 
+ 
+    .parts-slot {
+      background: #3a3a4a;
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 20px;
+    }
+ 
+    .parts-slot h3 {
+      margin: 0 0 10px;
+      font-size: 1em;
+    }
+ 
+    .slot {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+ 
+    .slot span {
+      flex-basis: 120px;
+    }
+	
+	.slot-bar {
+		flex-grow: 1;
+		height: 8px;
+		background-color: #000;
+		border-radius: 5px;
+		overflow: hidden;
+		position: relative;
+		display: grid; /* Use grid for easy division */
+		grid-template-columns: repeat(45, 1fr); /* Divide into 45 equal columns */
+	}
+
+	.slot-fill_used {
+		height: 100%;
+		background-color: #f39c12; 
+	}
+	
+	.slot-fill_limit {
+		height: 100%;
+		background-color: #ddd;
+	}
+
+	.slot-bar::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-image: repeating-linear-gradient(
+			to right,
+			transparent,
+			transparent calc(100% / 45 - 1px), /* Adjust width of each box */
+			black calc(100% / 45 - 1px), /* Black line */
+			black calc(100% / 45) /* End of black line */
+		);
+		z-index: 0; /* Place lines behind the fill */
+	}
+	
+	.status-bar {
+		flex-grow: 1;
+		height: 8px;
+		background-color: #444; 
+		border-radius: 5px;
+		overflow: hidden;
+		position: relative;
+		display: grid; 
+	}
+
+	.status-bar-hp {
+		grid-template-columns: repeat(30000, 1fr); /* max 30000 */
+	}
+	
+	.status-bar-def {
+		grid-template-columns: repeat(50, 1fr); /* max 50 */
+	}
+	
+	.status-bar-atk {
+		grid-template-columns: repeat(100, 1fr); /* max 100 */
+	}
+	
+	.status-bar-spd {
+		grid-template-columns: repeat(240, 1fr); /* max 250 */
+	}
+	
+	.status-bar-booster {
+		grid-template-columns: repeat(240, 1fr); /* max 250 */
+	}
+	
+	.status-bar-turn {
+		grid-template-columns: repeat(240, 1fr); /* max 250 */
+	}
+	
+	.status-fill_basic {
+		height: 100%;
+		background-color: #4caf50; 
+	}
+	
+	.status-fill_add {
+		height: 100%;
+		background-color: #f39c12;
+	}
+
+	.col2 {
+		width: 50px;
+	}
+	
+	.col3 {
+		width: 20px;
+	}
+	
+	.col4 {
+	}
+	
+	@media only screen and (max-width: 400px) {
+		th {
+			width: auto; /* Allow the th to grow to fit content */
+			flex-direction: column; /* Stack color and text vertically */
+			align-items: flex-start; /* Align items to the left */
+			font-size :Small;
+		}
+		td {
+			font-size :Small;
+		}
+		.color{
+			margin-right: 2px;
+			height: 10px;
+			width: 5px;
+		}
+		.col2 {
+			width: 50px;
+		}
+		
+		.col3 {
+			width: 20px;
+		}
+		.col4 {
+			display :none;
+		}
+		.slot-bar::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-image: none;
+			);
+			z-index: 0; /* Place lines behind the fill */
+		}
+	}
+  </style>
+</head>
+<body>
+<div class="table-container">
+<select id="name-dropdown">
+    <option value="">MS selection</option>
+</select>
+<br/>
+<br/>
+<br/>
+<div class="table-header">
+<h1></h1>
+<span class="level">LV 1</span>
+</div>
+<table>
+<tbody>
+<tr>
+	<th><div class="color" style="background-color: #1E7086;"></div>COST</th>
+	<td class="col2">0</td>
+	<td class="col3"></td>
+	<td class="col4"></td>
+</tr>
+<tr>
+	<th><div class="color" style="background-color: #1E7086;"></div>機体HP</th>
+	<td class="HP">21000</td>
+	<td class="HP_add">[+1000]</td>
+	<td class="col4">
+		<div class="status-bar status-bar-hp">
+			<div class="status-fill_basic" style="grid-column: 1 / calc(var(--HP_Basic) + 1); "></div> 
+			<!--column-end = basic+1 -->
+			<div class="status-fill_add" style="grid-column: calc(var(--HP_Basic) + 1) / calc(var(--HP_Basic) + 1 + var(--HP_Add));"></div> 
+			<!--column-start = basic+1, column-end = add+1  -->
+		</div>
+	</td>
+</tr>
+<tr>
+	<th><div class="color" style="background-color: #64903A;"></div>耐実弾補正</th>
+	<td>18</td>
+	<td>[+20]</td>
+	<td class="col4">
+		<div class="status-bar status-bar-def">
+		<div class="status-fill_basic" style="grid-column-start: 1;grid-column-end: 19;"></div> 
+		<!--column-end = basic+1 -->
+		<div class="status-fill_add" style="grid-column-start: 19;grid-column-end: 39;"></div> 
+		<!--column-start = basic+1, column-end = add+1  -->
+	</td>
+</tr>
+<tr>
+	<th><div class="color" style="background-color: #64903A;"></div>耐ビーム補正</th>
+	<td>34</td>
+	<td>[+0]</td>
+	<td class="col4">
+		<div class="status-bar status-bar-def">
+		<div class="status-fill_basic" style="grid-column-start: 1;grid-column-end: 35;"></div> 
+		<!--column-end = basic+1 -->
+		<div class="status-fill_add" style="grid-column-start: 35;grid-column-end: 35;"></div> 
+		<!--column-start = basic+1, column-end = add+1  -->
+	</td>
+</tr>
+<tr>
+	<th><div class="color" style="background-color: #64903A;"></div>耐格闘補正</th>
+	<td>34</td>
+	<td>[+0]</td>
+	<td class="col4">
+		<div class="status-bar status-bar-def">
+		<div class="status-fill_basic" style="grid-column-start: 1;grid-column-end: 35;"></div> 
+		<!--column-end = basic+1 -->
+		<div class="status-fill_add" style="grid-column-start: 35;grid-column-end: 35;"></div> 
+		<!--column-start = basic+1, column-end = add+1  -->
+	</td>
+</tr>
+<tr>
+	<th><div class="color" style="background-color: #585C24;"></div>射撃補正</th>
+	<td>30</td>
+	<td>[+0]</td>
+	<td class="col4">
+		<div class="status-bar status-bar-atk">
+		<div class="status-fill_basic" style="grid-column-start: 1;grid-column-end: 31;"></div> 
+		<!--column-end = basic+1 -->
+		<div class="status-fill_add" style="grid-column-start: 31;grid-column-end: 31;"></div> 
+		<!--column-start = basic+1, column-end = add+1  -->
+	</td>
+</tr>
+<tr>
+	<th><div class="color" style="background-color: #585C24;"></div>格闘補正</th>
+	<td>30</td>
+	<td>[+0]</td>
+	<td class="col4">
+		<div class="status-bar status-bar-atk">
+		<div class="status-fill_basic" style="grid-column-start: 1;grid-column-end: 31;"></div> 
+		<!--column-end = basic+1 -->
+		<div class="status-fill_add" style="grid-column-start: 31;grid-column-end: 31;"></div> 
+		<!--column-start = basic+1, column-end = add+1  -->
+	</td>
+</tr>
+<tr>
+	<th><div class="color" style="background-color: #644021;"></div>スピード</th>
+	<td>135</td>
+	<td>[+0]</td>
+	<td class="col4">
+		<div class="status-bar status-bar-spd">
+		<div class="status-fill_basic" style="grid-column-start: 1;grid-column-end: 135;"></div> 
+		<!--column-end = basic+1 -->
+		<div class="status-fill_add" style="grid-column-start: 135;grid-column-end: 135;"></div> 
+		<!--column-start = basic+1, column-end = add+1  -->
+	</td>
+</tr>
+<tr>
+	<th><div class="color" style="background-color: #644021;"></div>高速移動</th>
+	<td>230</td>
+	<td>[+0]</td>
+	<td class="col4">
+		<div class="status-bar status-bar-spd">
+		<div class="status-fill_basic" style="grid-column-start: 1;grid-column-end: 231;"></div> 
+		<!--column-end = basic+1 -->
+		<div class="status-fill_add" style="grid-column-start: 231;grid-column-end: 231;"></div> 
+		<!--column-start = basic+1, column-end = add+1  -->
+	</td>
+</tr>
+<tr>
+	<th><div class="color" style="background-color: #644021;"></div>スラスター</th>
+	<td>80</td>
+	<td>[+0]</td>
+	<td class="col4">
+		<div class="status-bar status-bar-booster">
+		<div class="status-fill_basic" style="grid-column-start: 1;grid-column-end: 80;"></div> 
+		<!--column-end = basic+1 -->
+		<div class="status-fill_add" style="grid-column-start: 80;grid-column-end: 80;"></div> 
+		<!--column-start = basic+1, column-end = add+1  -->
+	</td>
+</tr>
+<tr>
+	<th><div class="color" style="background-color: #644021;"></div>旋回</th>
+	<td>72</td>
+	<td>[+0]</td>
+	<td class="col4">
+		<div class="status-bar status-bar-turn">
+		<div class="status-fill_basic" style="grid-column-start: 1;grid-column-end: 72;"></div> 
+		<!--column-end = basic+1 -->
+		<div class="status-fill_add" style="grid-column-start: 72;grid-column-end: 72;"></div> 
+		<!--column-start = basic+1, column-end = add+1  -->
+	</td>
+</tr>
+</tbody>
+</table>
+
+
+<div class="parts-slot">
+<h3>PARTS SLOT</h3>
+<div class="slot">
+<span>近距離: 5/19</span>
+<div class="slot-bar">
+	<div class="slot-fill_used" style="grid-column-start: 1;grid-column-end: 6;"></div> 
+	<!--column-end = used+1 -->
+	<div class="slot-fill_limit" style="grid-column-start: 6;grid-column-end: 20;"></div> 
+	<!--column-start = used+1, column-end = max+1  -->
+</div>
+</div>
+<div class="slot">
+<span>中距離: 6/13</span>
+<div class="slot-bar">
+	<div class="slot-fill_used" style="grid-column-start: 1;grid-column-end: 7;"></div>
+	<!--column-end = used +1 -->
+	<div class="slot-fill_limit" style="grid-column-start: 7;grid-column-end: 14;"></div>
+	<!--column-start = used+1, column-end = max+1  -->
+</div>
+</div>
+<div class="slot">
+<span>遠距離: 7/20</span>
+<div class="slot-bar">
+	<div class="slot-fill_used" style="grid-column-start: 1;grid-column-end: 8;"></div>
+	<!--column-end = used +1 -->
+	<div class="slot-fill_limit" style="grid-column-start: 8;grid-column-end: 21;"></div>
+	<!--column-start = used+1, column-end = max+1  -->
+</div>
+</div>
+</div>
+</div>
+<script>
+    $(document).ready(function() {
+        $.ajax({
+            url: 'https://poe21c.github.io/script/gbo_mecha_full.csv',
+            dataType: 'text',
+            mimeType: 'text/csv; charset=utf-8',
+            success: function(data) {
+                var rows = data.split('\n');
+                var headers = rows[0].split(',');
+
+                var nameIndex = headers.indexOf('名称');
+                var lvIndex = headers.indexOf('LV');
+                var addrIndex = headers.indexOf('属性');
+                var costIndex = headers.indexOf('Cost');
+                var addrIndex = headers.indexOf('属性');
+                var HPIndex = headers.indexOf('HP');
+
+
+                for (var i = 1; i < rows.length; i++) {
+                    var rowData = rows[i].split(',');
+                    if (rowData && rowData[lvIndex] === '1' && rowData[nameIndex]) {
+                        $('#name-dropdown').append($('<option>', {
+                            value: rowData[nameIndex],
+                            text: rowData[nameIndex]
+                        }));
+                    }
+                }
+
+                $('#name-dropdown').change(function() {
+                    var selectedName = $(this).val();
+                    var selectedData = {};
+
+                    for (var i = 1; i < rows.length; i++) {
+                        var rowData = rows[i].split(',');
+                        if (rowData && rowData[nameIndex] === selectedName) {
+                            selectedData = rowData;
+                            break;
+                        }
+                    }
+				
+				
+				$('h1').text(selectedData[nameIndex]);
+				$('.col2').text(selectedData[costIndex]);
+				
+				$('.HP').text(selectedData[HPIndex]);
+				$(':root').css('--HP_Basic', selectedData[HPIndex]);
+				
+				
+                });
+            },
+            error: function(error) {
+                console.error("Error loading CSV:", error);
+                $('#data-container').html("<p>Error loading data.</p>");
+            }
+        });
+    });
+</script>
+</body></html>
